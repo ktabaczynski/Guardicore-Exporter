@@ -1,32 +1,21 @@
 import csv
 import sys
 
-data=[]
+
 export_data=set()
 
+def open_file(mode='r'):
+    arg_pos= 2 if mode=='w' else 1
+    return open(sys.argv[arg_pos],mode,encoding='UTF8',newline='')
 
-count=0
-with open(sys.argv[1]) as fp:
-    while True:
-        count += 1        
-        line = fp.readline()
-        if count==1:
-            continue
-        if not line:
-            break
-        double_quotes_separated=line.split('""')
-        src_ip=double_quotes_separated[0].split(',')[5]
+with open_file('r') as fr:
+    csvreader = csv.reader(fr)
+    for row in csvreader:
+      source_asset_name,src_ip,dest_asset_name,dest_ip,dest_port,dest_proto=row[7],row[5],row[16],row[14],row[23],row[24]
+      export_data.add((source_asset_name,src_ip,dest_asset_name,dest_ip,dest_port,dest_proto))
 
-        source_asset_name=double_quotes_separated[0].split(',')[7]
-        dest_asset_name=double_quotes_separated[4].split(',')[6]
-
-        dest_ip=double_quotes_separated[4].split(',')[4]
-        dest_port,dest_proto=double_quotes_separated[8].split(',')[4],double_quotes_separated[8].split(',')[5].strip()
-        data.append([src_ip,dest_ip,dest_port,dest_proto])
-
-        export_data.add((source_asset_name,src_ip,dest_asset_name,dest_ip,dest_port,dest_proto))
-
-with open(sys.argv[2], 'w', encoding='UTF8',newline='') as f:
-    writer = csv.writer(f)
+with open_file('w') as fw:
+    writer = csv.writer(fw)
+    writer.writerow( ('source_asset_name', 'source_ip', 'destination_asset_name', 'destination_ip','destination_port','ip_protocol') )
     for row in export_data:
-      writer.writerow(row)      
+      writer.writerow(row)
