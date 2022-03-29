@@ -17,17 +17,16 @@ def open_file(file_name, mode='r'):
 input_rows = ()
 
 
-def read_input_files():
+def read_input_file():
     global input_rows
-    for i in range(1, len(sys.argv)-1):
-        file_name = sys.argv[i]
-        with open_file(mode='r', file_name=file_name) as fr:
-            rows = csv.reader(fr)
-            header = next(rows)
-            input_rows += tuple(rows)
+    file_name = sys.argv[1]
+    with open_file(mode='r', file_name=file_name) as fr:
+        rows = csv.reader(fr)
+        header = next(rows)
+        input_rows += tuple(rows)
 
 
-read_input_files()
+read_input_file()
 
 
 def clean_guadicore_data():
@@ -54,12 +53,10 @@ def clean_netflow_data():
             export_data.add(('', rw[0], '', rw[2], rw3, rw4))
 
 
-clean_guadicore_data()
-clean_netflow_data()
+export_data = input_rows
 
-
-def address_is_ipv6(address):
-    return 6 in (netaddr.IPNetwork(address).version, netaddr.IPAddress('192.0.2.1'))
+def address_is_ipv6(addr):
+    return 6 in (netaddr.IPNetwork(addr).version, netaddr.IPAddress(addr).version)
 
 
 def address_in_subnet(address, subnet):
@@ -169,6 +166,3 @@ def write_main_output_file():
         writer = csv.writer(fw)
         writer.writerow(header)
         writer.writerows(export_data)
-
-
-write_main_output_file()
